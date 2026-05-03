@@ -9,8 +9,8 @@
             string user = Request.Form["username"];
             string pass = Request.Form["password"];
             
-            // CRITICAL FIX: Pointing to your specific instance from your screenshot
-            string connString = @"Data Source=DESKTOP-HLJKG0L\SQLEXPRESS;Initial Catalog=APBManagementStudio;Integrated Security=True";
+            // This string uses the server name and database you just created[cite: 1, 4]
+            string connString = @"Data Source=DESKTOP-HLJKG0L\SQLEXPRESS;Initial Catalog=apbstudio;Integrated Security=True";
 
             using (SqlConnection conn = new SqlConnection(connString))
             {
@@ -24,14 +24,16 @@
                     object role = cmd.ExecuteScalar();
                     
                     if (role != null) {
+                        // Success: Move to the dashboard[cite: 3]
                         Response.Redirect("dashboard.html");
                     } else {
-                        // Breaking the script tag prevents compilation errors
+                        // Fail: Use broken tag to avoid compilation errors[cite: 3]
                         Response.Write("<script>alert('Invalid Credentials'); window.location='index.html';</" + "script>");
                     }
                 }
                 catch (Exception ex) {
-                    Response.Write("<h3 style='color:red; font-family:sans-serif;'>Connection Error: " + ex.Message + "</h3>");
+                    // Displays the error if the connection fails again
+                    Response.Write("<div style='color:red; font-family:sans-serif;'>Connection Error: " + ex.Message + "</div>");
                 }
             }
         }
