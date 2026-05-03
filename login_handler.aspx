@@ -9,7 +9,7 @@
             string user = Request.Form["username"];
             string pass = Request.Form["password"];
             
-            // Connection string for APBManagementStudio
+            // Database Connection for APBManagementStudio
             string connString = "Data Source=.;Initial Catalog=APBManagementStudio;Integrated Security=True";
 
             using (SqlConnection conn = new SqlConnection(connString))
@@ -24,20 +24,20 @@
                     object role = cmd.ExecuteScalar();
                     
                     if (role != null) {
-                        // Success: Redirect to the dashboard page
-                        Response.Redirect("dashboard.aspx");
+                        // Create a simple session cookie for the HTML page to check
+                        HttpCookie authCookie = new HttpCookie("AuthStatus", "Logged");
+                        Response.Cookies.Add(authCookie);
+                        
+                        // Redirect to the HTML version of the dashboard
+                        Response.Redirect("dashboard.html");
                     } else {
-                        // Failure: Show alert and go back to login
-                        Response.Write("<script>alert('Invalid Username or Password'); window.location='index.html';</script>");
+                        Response.Write("<script>alert('Invalid Credentials'); window.location='index.html';</script>");
                     }
                 }
                 catch (Exception ex) {
-                    Response.Write("<p style='color:red;'>Database Error: " + ex.Message + "</p>");
+                    Response.Write("Error: " + ex.Message);
                 }
             }
-        }
-        else {
-            Response.Redirect("index.html");
         }
     }
 </script>
