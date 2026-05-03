@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard | APB Broadband</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --sidebar: #0e1a35; --bg: #f4f7f6; --accent: #00d4ff; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--bg); display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: 260px; background: var(--sidebar); color: white; padding: 30px 20px; }
+        .main { flex: 1; padding: 30px; overflow-y: auto; }
+        .panel { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div style="text-align:center; margin-bottom:40px;">
+            <i class="fas fa-user-circle" style="font-size:50px; color:var(--accent);"></i>
+            <h3 style="margin-top:10px;">SUPER ADMIN</h3>
+            <p style="font-size: 0.8em; opacity: 0.6;">APB Broadband</p>
+        </div>
+        <nav>
+            <a href="#" style="color:var(--accent); text-decoration:none;"><i class="fas fa-th"></i> Dashboard</a>
+            <br><br>
+            <a href="index.html" style="color:#ff5e5e; text-decoration:none;"><i class="fas fa-power-off"></i> Logout</a>
+        </nav>
+    </div>
+
+    <div class="main">
+        <h1>Dashboard User</h1>
+        <div class="panel" style="margin-top:20px;">
+            <h3>System Status: <span style="color:green;">Connected</span></h3>
+            <p style="margin-top:10px; color:#666;">Security is active. This session will expire if you refresh the page or remain inactive for 2 minutes.</p>
+        </div>
+    </div>
+
+    <script>
+        // 1. REDIRECT ON REFRESH
+        if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
+            window.location.href = "index.html";
+        }
+
+        // 2. 2-MINUTE INACTIVITY TIMEOUT
+        let idleTime = 0;
+        setInterval(function() {
+            idleTime++;
+            if (idleTime >= 120) { // 120 seconds
+                alert("Session expired due to inactivity.");
+                window.location.href = "index.html";
+            }
+        }, 1000);
+
+        // Reset timer on movement
+        document.onmousemove = document.onkeypress = document.onclick = function() {
+            idleTime = 0;
+        };
+    </script>
+</body>
+</html>

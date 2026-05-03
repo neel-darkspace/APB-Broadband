@@ -9,8 +9,8 @@
             string user = Request.Form["username"];
             string pass = Request.Form["password"];
             
-            // Database Connection for APBManagementStudio
-            string connString = "Data Source=.;Initial Catalog=APBManagementStudio;Integrated Security=True";
+            // CRITICAL FIX: Pointing to your specific instance from your screenshot
+            string connString = @"Data Source=DESKTOP-HLJKG0L\SQLEXPRESS;Initial Catalog=APBManagementStudio;Integrated Security=True";
 
             using (SqlConnection conn = new SqlConnection(connString))
             {
@@ -24,18 +24,14 @@
                     object role = cmd.ExecuteScalar();
                     
                     if (role != null) {
-                        // Create a simple session cookie for the HTML page to check
-                        HttpCookie authCookie = new HttpCookie("AuthStatus", "Logged");
-                        Response.Cookies.Add(authCookie);
-                        
-                        // Redirect to the HTML version of the dashboard
                         Response.Redirect("dashboard.html");
                     } else {
-                        Response.Write("<script>alert('Invalid Credentials'); window.location='index.html';</script>");
+                        // Breaking the script tag prevents compilation errors
+                        Response.Write("<script>alert('Invalid Credentials'); window.location='index.html';</" + "script>");
                     }
                 }
                 catch (Exception ex) {
-                    Response.Write("Error: " + ex.Message);
+                    Response.Write("<h3 style='color:red; font-family:sans-serif;'>Connection Error: " + ex.Message + "</h3>");
                 }
             }
         }
