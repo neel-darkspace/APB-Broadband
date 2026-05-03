@@ -3,136 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>APB Broadband | Customer Login</title>
+    <title>Login | APB Broadband</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
-            --primary-blue: #0056b3;
-            --accent-orange: #ff6600;
-            --bg-light: #f4f7f9;
-            --text-dark: #333;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-light);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
+                        url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
             height: 100vh;
-            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .login-card {
-            background: #ffffff;
-            padding: 2.5rem;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
+            width: 850px;
+            height: 480px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 15px;
+            display: flex;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
-        .logo-area h1 {
-            color: var(--primary-blue);
-            margin-bottom: 0.5rem;
-            font-weight: 800;
-            letter-spacing: -1px;
-        }
-
-        .logo-area span {
-            color: var(--accent-orange);
-        }
-
-        .login-card p {
-            color: #666;
-            margin-bottom: 2rem;
-            font-size: 0.9rem;
-        }
-
-        .form-group {
-            text-align: left;
-            margin-bottom: 1.5rem;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: var(--text-dark);
-        }
-
-        input[type="text"],
-        input[type="password"] {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            box-sizing: border-box;
-            transition: border-color 0.3s;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: var(--primary-blue);
-        }
-
-        .btn-login {
-            width: 100%;
-            padding: 12px;
-            background-color: var(--primary-blue);
+        .left-panel {
+            flex: 1.2;
+            padding: 45px;
             color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .right-panel {
+            flex: 1;
+            padding: 45px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .brand { font-size: 1.6em; font-weight: bold; color: #00d4ff; }
+        
+        .input-box {
+            position: relative;
+            margin: 25px 0;
+            border-bottom: 2px solid #fff;
+        }
+
+        .input-box input {
+            width: 100%;
+            background: transparent;
             border: none;
-            border-radius: 6px;
-            font-size: 1rem;
+            outline: none;
+            padding: 10px 0;
+            color: white;
+            font-size: 1em;
+        }
+
+        .input-box i {
+            position: absolute;
+            right: 5px;
+            bottom: 10px;
+            opacity: 0.8;
+        }
+
+        .btn-signin {
+            width: 100%;
+            padding: 12px;
+            background: #c61d41;
+            border: none;
+            border-radius: 5px;
+            color: white;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s;
+            margin-top: 10px;
         }
 
-        .btn-login:hover {
-            background-color: #004494;
-        }
-
-        .footer-links {
-            margin-top: 1.5rem;
-            font-size: 0.85rem;
-        }
-
-        .footer-links a {
-            color: var(--primary-blue);
-            text-decoration: none;
-        }
-
-        .footer-links a:hover {
-            text-decoration: underline;
+        .social-icons i {
+            margin-right: 15px;
+            font-size: 1.2em;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
     <div class="login-card">
-        <div class="logo-area">
-            <h1>APB <span>Broadband</span></h1>
+        <!-- Brand Info -->
+        <div class="left-panel">
+            <div class="brand">APB Broadband</div>
+            <div>
+                <h1 style="font-size: 2.5em;">Welcome!</h1>
+                <p style="margin-top: 5px;">To APB Management Studio.</p>
+                <p style="font-size: 0.8em; margin-top: 15px; opacity: 0.7;">
+                    Access your administrative dashboard and network management tools.
+                </p>
+            </div>
+            <div class="social-icons">
+                <i class="fab fa-linkedin"></i>
+                <i class="fab fa-facebook-square"></i>
+                <i class="fab fa-instagram"></i>
+                <i class="fab fa-twitter"></i>
+            </div>
         </div>
-        <p>Manage your account, pay bills, and track usage.</p>
 
-        <form action="/login-endpoint" method="POST">
-            <div class="form-group">
-                <label for="username">Username / Customer ID</label>
-                <input type="text" id="username" name="username" placeholder="Enter your ID" required>
-            </div>
+        <!-- Login Form -->
+        <div class="right-panel">
+            <h2 style="text-align: center; margin-bottom: 20px;">Sign In</h2>
+            
+            <form action="login_handler.aspx" method="post">
+                <div class="input-box">
+                    <input type="text" name="username" placeholder="Username" required>
+                    <i class="fas fa-user"></i>
+                </div>
 
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="••••••••" required>
-            </div>
+                <div class="input-box">
+                    <input type="password" name="password" placeholder="Password" required>
+                    <i class="fas fa-lock"></i>
+                </div>
 
-            <button type="submit" class="btn-login">Secure Login</button>
-        </form>
+                <div style="display: flex; justify-content: space-between; font-size: 0.8em; margin-bottom: 20px;">
+                    <label><input type="checkbox"> Remember me</label>
+                    <a href="#" style="color: white; text-decoration: none;">Forgot password?</a>
+                </div>
 
-        <div class="footer-links">
-            <a href="#">Forgot Password?</a> • <a href="#">Register New Account</a>
+                <button type="submit" class="btn-signin">Sign In</button>
+            </form>
+            
+            <p style="text-align: center; font-size: 0.8em; margin-top: 25px;">
+                Don't have an account? <a href="#" style="color: white; font-weight: bold;">Sign up</a>
+            </p>
         </div>
     </div>
 
