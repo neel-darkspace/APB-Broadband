@@ -24,13 +24,15 @@
                     object role = cmd.ExecuteScalar();
                     
                     if (role != null) {
-                        Response.Write("<h2 style='color:white; font-family:sans-serif;'>Login Successful! Welcome, " + role.ToString() + "</h2>");
+                        // Success: Redirect to the dashboard page
+                        Response.Redirect("dashboard.aspx");
                     } else {
-                        Response.Write("<h2 style='color:red; font-family:sans-serif;'>Invalid Username or Password. <a href='index.html' style='color:white;'>Try again</a></h2>");
+                        // Failure: Show alert and go back to login
+                        Response.Write("<script>alert('Invalid Username or Password'); window.location='index.html';</script>");
                     }
                 }
                 catch (Exception ex) {
-                    Response.Write("<p style='color:yellow;'>Error: " + ex.Message + "</p>");
+                    Response.Write("<p style='color:red;'>Database Error: " + ex.Message + "</p>");
                 }
             }
         }
