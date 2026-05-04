@@ -1,39 +1,32 @@
-<%@ Page Language="C#" %>
+<%@ Page Language="C#" ContentType="application/json" %>
 <%@ Import Namespace="System.Data.SqlClient" %>
+<%@ Import Namespace="System.Web.Script.Serialization" %>
 
 <script runat="server">
-    protected void Page_Load(object sender, EventArgs e)
-    {
-        if (Request.HttpMethod == "POST")
-        {
+    protected void Page_Load(object sender, EventArgs e) {
+        if (Request.HttpMethod == "POST") {
             string user = Request.Form["username"];
             string pass = Request.Form["password"];
             
-            // This string uses the server name and database you just created[cite: 1, 4]
-            string connString = @"Data Source=DESKTOP-HLJKG0L\SQLEXPRESS;Initial Catalog=apbstudio;Integrated Security=True";
+            // Critical Fix: Points exactly to your local SQL instance[cite: 3]
+            string connString = @"Data Source=DESKTOP-HLJKG0L\SQLEXPRESS;Initial Catalog=apb;Integrated Security=True";
 
-            using (SqlConnection conn = new SqlConnection(connString))
-            {
-                string query = "SELECT Role FROM Users WHERE Username=@user AND Password=@pass";
+            using (SqlConnection conn = new SqlConnection(connString)) {
+                string query = "SELECT FullName FROM Users WHERE Username=@u AND Password=@p";
                 SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@user", user);
-                cmd.Parameters.AddWithValue("@pass", pass);
+                cmd.Parameters.AddWithValue("@u", user);
+                cmd.Parameters.AddWithValue("@p", pass);
 
                 try {
                     conn.Open();
-                    object role = cmd.ExecuteScalar();
-                    
-                    if (role != null) {
-                        // Success: Move to the dashboard[cite: 3]
-                        Response.Redirect("dashboard.html");
-                    } else {
-                        // Fail: Use broken tag to avoid compilation errors[cite: 3]
-                        Response.Write("<script>alert('Invalid Credentials'); window.location='index.html';</" + "script>");
-                    }
+                    object name = cmd.ExecuteScalar();
+                    bool auth = (name != null);
+                    var result = new { authenticated = auth, fullName = name };
+                    Response.Write(new JavaScriptSerializer().Serialize(result));
                 }
                 catch (Exception ex) {
-                    // Displays the error if the connection fails again
-                    Response.Write("<div style='color:red; font-family:sans-serif;'>Connection Error: " + ex.Message + "</div>");
+                    // Send error details to JS console for debugging
+                    Response.Write(new JavaScriptSerializer().Serialize(new { error = ex.Message }));
                 }
             }
         }

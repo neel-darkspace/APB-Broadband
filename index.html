@@ -2,45 +2,330 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login | APB Broadband</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APB Broadband | Pro Enterprise Management</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body {
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80');
-            background-size: cover; height: 100vh; display: flex; align-items: center; justify-content: center;
-        }
-        .login-card { width: 850px; height: 480px; background: rgba(255,255,255,0.1); backdrop-filter: blur(15px); border-radius: 15px; display: flex; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
-        .left { flex: 1.2; padding: 45px; color: white; display: flex; flex-direction: column; justify-content: space-between; background: rgba(0,0,0,0.2); }
-        .right { flex: 1; padding: 45px; color: white; display: flex; flex-direction: column; justify-content: center; }
-        .brand { font-size: 1.6em; font-weight: bold; color: #00d4ff; }
-        .input-box { position: relative; margin: 25px 0; border-bottom: 2px solid #fff; }
-        .input-box input { width: 100%; background: transparent; border: none; outline: none; padding: 10px 0; color: white; }
-        .input-box i { position: absolute; right: 5px; bottom: 10px; }
-        .btn { width: 100%; padding: 12px; background: #c61d41; border: none; border-radius: 5px; color: white; font-weight: bold; cursor: pointer; }
+        :root { --apb-blue: #0ea5e9; --sidebar-dark: #0f172a; --bg-slate: #f1f5f9; }
+        body, html { height: 100%; margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-slate); overflow: hidden; }
+
+        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--sidebar-dark); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .login-card { background: white; width: 850px; height: 480px; border-radius: 32px; display: flex; overflow: hidden; box-shadow: 0 40px 100px rgba(0,0,0,0.4); }
+        .login-left { flex: 1; background: linear-gradient(rgba(15,23,42,0.8), rgba(15,23,42,0.8)), url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1000') center/cover; padding: 50px; color: white; display: flex; flex-direction: column; justify-content: center; }
+        .login-right { flex: 1.2; padding: 50px; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+
+        #mainApp { display: none; height: 100vh; display: flex; opacity: 0; transition: 0.5s ease; }
+        #mainApp.visible { display: flex; opacity: 1; }
+        .sidebar { width: 260px; background: var(--sidebar-dark); color: white; display: flex; flex-direction: column; flex-shrink: 0; }
+        .nav-link-pro { display: flex; align-items: center; padding: 12px 18px; color: #94a3b8; text-decoration: none; border-radius: 12px; margin-bottom: 5px; cursor: pointer; transition: 0.2s; }
+        .nav-link-pro.active, .nav-link-pro:hover { background: rgba(255,255,255,0.05); color: white; }
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .navbar-pro { height: 70px; background: white; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; padding: 0 30px; justify-content: space-between; }
+
+        .card-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; padding: 25px; }
+        .premium-card { width: 100%; height: 320px; border-radius: 24px; overflow: hidden; position: relative; cursor: pointer; transition: 0.3s ease; border: 1px solid rgba(0,0,0,0.05); }
+        .premium-card:hover { transform: translateY(-8px); box-shadow: 0 20px 30px rgba(0,0,0,0.1); }
+        .card-bg { position: absolute; top:0; left:0; width:100%; height:100%; object-fit: cover; z-index: 1; }
+        .card-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 65%; background: linear-gradient(to top, rgba(15,23,42,1) 0%, rgba(15,23,42,0.7) 45%, transparent 100%); z-index: 2; padding: 20px; display: flex; flex-direction: column; justify-content: flex-end; }
+        .card-title { color: white; font-weight: 700; font-size: 1.1rem; margin-bottom: 5px; }
+        .pill-btn { background: white; color: var(--sidebar-dark); border: none; padding: 8px 0; border-radius: 50px; font-weight: 700; font-size: 0.8rem; width: 100%; transition: 0.2s; }
+
+        .mgmt-panel { position: fixed; top: -110%; left: 260px; width: calc(100% - 260px); height: 92%; background: white; z-index: 1045; padding: 40px; border-radius: 0 0 40px 40px; transition: 0.8s cubic-bezier(0.8, 0, 0.2, 1); box-shadow: 0 40px 100px rgba(0,0,0,0.1); overflow-y: auto; border-bottom: 4px solid var(--apb-blue); }
+        .mgmt-panel.open { top: 0; }
+        .hidden { display: none !important; }
+        .hub-controls { position: absolute; top: 30px; right: 40px; display: flex; gap: 10px; z-index: 1050; }
+        .btn-icon-hub { background: var(--bg-slate); border: none; width: 40px; height: 40px; border-radius: 12px; color: var(--sidebar-dark); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+        .plan-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-top: 20px; }
+        .pricing-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 24px; padding: 25px; transition: 0.3s; position: relative; }
+        .pricing-box:hover { border-color: var(--apb-blue); background: white; }
+
+        .dropdown-check-list { width: 100%; position: relative; }
+        .dropdown-check-list .anchor { cursor: pointer; display: block; padding: 10px 20px; background: #fff; border-radius: 50px; font-size: 0.85rem; border: 1px solid #e2e8f0; font-weight: 600; text-align: center; }
+        .dropdown-check-list ul.items { padding: 15px; display: none; position: absolute; width: 100%; min-width: 280px; background: #fff; border: 1px solid #e2e8f0; border-radius: 15px; z-index: 100; margin-top: 5px; box-shadow: 0 10px 15px rgba(0,0,0,0.05); max-height: 250px; overflow-y: auto; }
+        .dropdown-check-list.visible ul.items { display: block; }
+
+        #successToast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: #10b981; color: white; padding: 12px 35px; border-radius: 50px; font-weight: 700; z-index: 12000; transition: 0.5s; display: flex; align-items: center; gap: 10px; }
+        #successToast.show { transform: translateX(-50%) translateY(0); }
     </style>
 </head>
 <body>
+
+<div id="successToast"><i class="bi bi-check-circle-fill"></i> System Synchronized</div>
+
+<!-- 1. LOGIN -->
+<div id="loginOverlay">
     <div class="login-card">
-        <div class="left">
-            <div class="brand">APB Broadband</div>
-            <div><h1>Welcome!</h1><p>APB Management Studio</p></div>
-            <div class="socials"><i class="fab fa-linkedin"></i> <i class="fab fa-facebook"></i></div>
-        </div>
-        <div class="right">
-            <h2 style="text-align:center; margin-bottom:20px;">Portal Sign In</h2>
-            <form action="login_handler.aspx" method="post">
-                <div class="input-group input-box">
-                    <input type="text" name="username" placeholder="Username" required>
-                    <i class="fas fa-user"></i>
-                </div>
-                <div class="input-group input-box">
-                    <input type="password" name="password" placeholder="Password" required>
-                    <i class="fas fa-lock"></i>
-                </div>
-                <button type="submit" class="btn">Sign In</button>
-            </form>
+        <div class="login-left"><h2>APB CORE</h2><p>Enterprise Access Node</p></div>
+        <div class="login-right">
+            <h4 class="fw-bold mb-4">Verification</h4>
+            <input type="text" id="userInput" class="form-control rounded-pill mb-3" placeholder="Admin ID">
+            <input type="password" id="passInput" class="form-control rounded-pill mb-4" placeholder="••••">
+            <button class="btn btn-primary w-100 rounded-pill py-2 fw-bold" onclick="handleLogin()">AUTHENTICATE</button>
         </div>
     </div>
+</div>
+
+<!-- 2. MAIN APP -->
+<div id="mainApp">
+    <div class="sidebar">
+        <div class="p-4 fw-bold fs-5 border-bottom border-white border-opacity-10 text-center">APB BROADBAND</div>
+        <div class="nav-pro px-3 mt-3">
+            <a onclick="showSection('dashboard')" id="nav-dashboard" class="nav-link-pro active"><i class="bi bi-grid-fill me-3"></i> Dashboard</a>
+            <a onclick="showSection('customers')" id="nav-customers" class="nav-link-pro"><i class="bi bi-people-fill me-3"></i> Customers</a>
+            <a onclick="showSection('billing')" id="nav-billing" class="nav-link-pro"><i class="bi bi-receipt me-3"></i> Billing</a>
+        </div>
+        <div class="mt-auto p-4 text-center">
+            <div class="small opacity-50 mb-2">Idle Logout: <span id="timerDisplay">02:00</span></div>
+            <button class="btn btn-sm btn-outline-danger w-100 rounded-pill" onclick="logout()">Sign Out</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <header class="navbar-pro px-4">
+            <h6 class="fw-bold m-0 text-secondary" id="pageTitle">Command Center</h6>
+            <div class="fw-bold text-dark small">Administrator</div>
+        </header>
+
+        <div class="scroll-area" id="section-dashboard">
+            <div class="card-row">
+                <div class="premium-card" onclick="openMasterMenu()"><img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc51?q=80&w=1000&auto=format&fit=crop" class="card-bg"><div class="card-overlay"><div class="card-title">Master Matrix Hub</div><button class="pill-btn">Launch</button></div></div>
+                <div class="premium-card" onclick="showSection('customers')"><img src="https://images.unsplash.com/photo-1556745753-b2904692b3cd?q=80&w=1000&auto=format&fit=crop" class="card-bg"><div class="card-overlay"><div class="card-title">Subscribers</div><button class="pill-btn">View CRM</button></div></div>
+                <div class="premium-card" onclick="showSection('billing')"><img src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=1000&auto=format&fit=crop" class="card-bg"><div class="card-overlay"><div class="card-title">Billing</div><button class="pill-btn">Finance</button></div></div>
+                <div class="premium-card"><img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop" class="card-bg"><div class="card-overlay"><div class="card-title">Analytics</div><button class="pill-btn">Reports</button></div></div>
+                <div class="premium-card"><img src="https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=1000&auto=format&fit=crop" class="card-bg"><div class="card-overlay"><div class="card-title">Security</div><button class="pill-btn">Shield</button></div></div>
+            </div>
+        </div>
+        <div class="scroll-area hidden p-4" id="section-customers"><h3>Subscriber Database</h3></div>
+        <div class="scroll-area hidden p-4" id="section-billing"><h3>Financial Ledger</h3></div>
+    </div>
+</div>
+
+<!-- 3. HUB PANEL -->
+<div id="topActionPanel" class="mgmt-panel">
+    <div class="hub-controls">
+        <button class="btn-icon-hub" onclick="resetToMasterHome()"><i class="bi bi-house"></i></button>
+        <button class="btn-icon-hub" onclick="goBackInHub()"><i class="bi bi-arrow-left"></i></button>
+        <button class="btn-icon-hub" onclick="closeTopPanel()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <h2 class="fw-bold">Master Matrix Hub</h2><hr class="my-4">
+
+    <div id="masterHome" class="row g-4 text-center">
+        <div class="col-md-4" onclick="showProviderForm()"><div class="pricing-box cursor-pointer"><i class="bi bi-building-add h1 text-primary"></i><h6 class="fw-bold mt-2">Add Provider</h6></div></div>
+        <div class="col-md-4" onclick="showPlanForm()"><div class="pricing-box cursor-pointer"><i class="bi bi-plus-circle h1 text-primary"></i><h6 class="fw-bold mt-2">Create Plan</h6></div></div>
+        <div class="col-md-4" onclick="showViewPlans()"><div class="pricing-box cursor-pointer"><i class="bi bi-grid-3x3 h1 text-primary"></i><h6 class="fw-bold mt-2">View Matrix</h6></div></div>
+    </div>
+
+    <!-- INVENTORY VIEW -->
+    <div id="viewPlans" class="hidden">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold m-0">Inventory Console</h5>
+            <div class="d-flex gap-2">
+                <span class="badge bg-primary px-3 py-2 rounded-pill">Plans: <span id="totalPlansCount">0</span></span>
+                <span class="badge bg-secondary px-3 py-2 rounded-pill">Providers: <span id="totalProvidersCount">0</span></span>
+            </div>
+        </div>
+        <div class="row g-2 mb-4 p-3 bg-light rounded-4 border align-items-center">
+            <div class="col-md-2"><input type="text" id="planSearch" class="form-control rounded-pill border-0 px-3" placeholder="Search..." onkeyup="filterPlanList()"></div>
+            <div class="col-md-2"><div id="providerMulti" class="dropdown-check-list"><span class="anchor" onclick="toggleDropdown('providerMulti', event)">Providers</span><ul class="items" id="providerCheckItems"></ul></div></div>
+            <div class="col-md-2"><div id="amountMulti" class="dropdown-check-list"><span class="anchor" onclick="toggleDropdown('amountMulti', event)">Amounts (₹)</span><ul class="items" id="amountCheckItems"></ul></div></div>
+            <div class="col-md-3">
+                <div id="speedMulti" class="dropdown-check-list"><span class="anchor" onclick="toggleDropdown('speedMulti', event)">Bandwidth</span>
+                    <ul class="items range-box">
+                        <span class="small fw-bold text-primary d-block text-center mb-2" id="rangeVal">Min: 10 Mbps</span>
+                        <input type="range" class="form-range" id="speedSlider" min="0" max="6" step="1" value="0" oninput="handleSliderChange()">
+                        <div class="d-flex justify-content-between px-1" style="font-size: 0.6rem; opacity: 0.6;"><span>10 Mbps</span><span>50 Mbps</span><span>100 Mbps</span><span>150 Mbps</span><span>200 Mbps</span><span>1 Gbps</span><span>10 Gbps</span></div>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <div class="dropdown flex-grow-1">
+                    <button class="btn btn-dark w-100 rounded-pill dropdown-toggle" data-bs-toggle="dropdown">SYNC OPTIONS</button>
+                    <ul class="dropdown-menu shadow border-0 rounded-4 p-2 mt-2">
+                        <li><a class="dropdown-item rounded-3 mb-1" onclick="exportToExcel()"><i class="bi bi-file-earmark-excel me-2"></i> Export Excel</a></li>
+                        <li><a class="dropdown-item rounded-3 mb-1" onclick="exportToPDF()"><i class="bi bi-file-earmark-pdf me-2 text-danger"></i> Export PDF</a></li>
+                        <div class="dropdown-divider"></div>
+                        <li><label class="dropdown-item rounded-3 cursor-pointer"><i class="bi bi-cloud-upload me-2 text-primary"></i> Bulk Import <input type="file" hidden onchange="importFromExcel(this)"></label></li>
+                    </ul>
+                </div>
+                <button class="btn btn-primary rounded-circle" onclick="refreshPlanList()"><i class="bi bi-arrow-clockwise"></i></button>
+            </div>
+        </div>
+        <div id="planListContainer" class="plan-grid"></div>
+    </div>
+
+    <!-- FORMS -->
+    <div id="providerForm" class="hidden">
+        <h4>Register Provider</h4>
+        <input type="text" id="mProviderName" class="form-control rounded-pill mb-3" placeholder="Name">
+        <button class="btn btn-primary rounded-pill px-5" onclick="submitProvider()">SAVE</button>
+    </div>
+    <div id="planForm" class="hidden">
+        <h4>Define Protocol</h4>
+        <select id="mProviderSelect" class="form-select rounded-pill mb-3"><option value="">Loading...</option></select>
+        <input type="text" id="mPlanName" class="form-control rounded-pill mb-3" placeholder="Label">
+        <label class="small fw-bold text-secondary px-2">Amount (₹)</label>
+        <input type="number" id="mAmount" class="form-control rounded-pill mb-3" placeholder="₹ Amount">
+        <label class="small fw-bold text-secondary px-2">Speed (Mbps/Gbps)</label>
+        <input type="number" id="mSpeed" class="form-control rounded-pill mb-3" placeholder="Numeric speed">
+        <button class="btn btn-primary rounded-pill px-5" onclick="submitPlan()">SAVE</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let hubHistory = ['masterHome'];
+    let idleTime = 0;
+    const speedSteps = [10, 50, 100, 150, 200, 1024, 10240];
+
+    window.onload = function() {
+        if (sessionStorage.getItem("apb_session") === "active") showAppInstantly();
+        setInterval(() => {
+            if (sessionStorage.getItem("apb_session") === "active") {
+                idleTime++;
+                if (idleTime >= 120) logout();
+                let r = 120-idleTime;
+                document.getElementById('timerDisplay').innerText = `${Math.floor(r/60)}:${(r%60).toString().padStart(2,'0')}`;
+            }
+        }, 1000);
+        document.onmousemove = document.onkeypress = document.onclick = () => idleTime = 0;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('click', (e) => {
+            if (!e.target.closest('.dropdown-check-list')) {
+                document.querySelectorAll('.dropdown-check-list').forEach(el => el.classList.remove('visible'));
+            }
+        });
+    });
+
+    function handleLogin() { sessionStorage.setItem("apb_session", "active"); location.reload(); }
+    function logout() { sessionStorage.clear(); location.reload(); }
+    function showAppInstantly() { 
+        document.getElementById('loginOverlay').style.display='none'; 
+        document.getElementById('mainApp').style.display='flex'; 
+        document.getElementById('mainApp').classList.add('visible'); 
+        refreshPlanList(); 
+    }
+
+    function showSection(id) {
+        document.querySelectorAll('.scroll-area').forEach(s => s.classList.add('hidden'));
+        document.getElementById('section-' + id).classList.remove('hidden');
+        document.querySelectorAll('.nav-link-pro').forEach(l => l.classList.remove('active'));
+        document.getElementById('nav-' + id).classList.add('active');
+        document.getElementById('pageTitle').innerText = id.charAt(0).toUpperCase() + id.slice(1);
+    }
+
+    function openMasterMenu() { document.getElementById('topActionPanel').classList.add('open'); resetToMasterHome(); }
+    function closeTopPanel() { document.getElementById('topActionPanel').classList.remove('open'); }
+    function resetToMasterHome() { hubHistory=['masterHome']; updateHubUI('masterHome'); }
+    function goBackInHub() { if(hubHistory.length>1){hubHistory.pop(); updateHubUI(hubHistory[hubHistory.length-1]);}}
+    function updateHubUI(id) { document.querySelectorAll('#topActionPanel > div:not(.hub-controls):not(h2):not(hr)').forEach(d=>d.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
+    
+    function showViewPlans() { hubHistory.push('viewPlans'); updateHubUI('viewPlans'); refreshPlanList(); }
+    function showProviderForm() { hubHistory.push('providerForm'); updateHubUI('providerForm'); }
+    function showPlanForm() { hubHistory.push('planForm'); updateHubUI('planForm'); loadProviderSelect(); }
+
+    function toggleDropdown(id, e) { 
+        e.stopPropagation();
+        document.querySelectorAll('.dropdown-check-list').forEach(el => { if(el.id !== id) el.classList.remove('visible'); });
+        document.getElementById(id).classList.toggle('visible'); 
+    }
+
+    function handleSliderChange() {
+        let val = speedSteps[document.getElementById('speedSlider').value];
+        document.getElementById('rangeVal').innerText = "Min: " + (val>=1024?(val/1024).toFixed(0)+" Gbps":val+" Mbps");
+        filterPlanList();
+    }
+
+    function loadProviderSelect() {
+        fetch('GetMasterProviders.aspx?t='+Date.now()).then(res=>res.json()).then(data=>{
+            let h='<option value="">Select Provider</option>'; 
+            data.forEach(p=>h+=`<option value="${p.id}">${p.name}</option>`);
+            document.getElementById('mProviderSelect').innerHTML=h;
+        });
+    }
+
+    function refreshPlanList() {
+        fetch('GetMasterProviders.aspx?t='+Date.now()).then(res=>res.json()).then(data=>{
+            document.getElementById('totalProvidersCount').innerText = data.length;
+            let c=''; data.forEach(p=>c+=`<li class="p-1"><input type="checkbox" class="provider-cb" value="${p.id}" onchange="filterPlanList()"> ${p.name}</li>`);
+            document.getElementById('providerCheckItems').innerHTML=c;
+        });
+        fetch('GetPlans.aspx?t='+Date.now()).then(res=>res.json()).then(data=>{ 
+            window.allPlans = data;
+            const uniqueAmts = [...new Set(data.map(p=>Math.floor(p.amount)))].sort((a,b)=>a-b);
+            let aHtml=''; 
+            uniqueAmts.forEach(a=>aHtml+=`<li class="p-1"><input type="checkbox" class="amount-cb" value="${a}" onchange="filterPlanList()"> ₹${a}</li>`);
+            document.getElementById('amountCheckItems').innerHTML=aHtml;
+            filterPlanList(); 
+        });
+    }
+
+    function filterPlanList() {
+        const s = document.getElementById('planSearch').value.toLowerCase();
+        const pids = Array.from(document.querySelectorAll('.provider-cb:checked')).map(cb=>cb.value);
+        const amts = Array.from(document.querySelectorAll('.amount-cb:checked')).map(cb=>cb.value);
+        const minSpd = speedSteps[document.getElementById('speedSlider').value];
+        
+        const filtered = (window.allPlans || []).filter(p => 
+            (!s || p.name.toLowerCase().includes(s)) && 
+            (pids.length===0 || pids.includes(p.providerId.toString())) && 
+            (amts.length===0 || amts.includes(Math.floor(p.amount).toString())) && 
+            (p.speed >= minSpd)
+        );
+        
+        document.getElementById('totalPlansCount').innerText = filtered.length;
+        document.getElementById('planListContainer').innerHTML = filtered.map(p => `
+            <div class="pricing-box">
+                <div style="position: absolute; top:15px; right:15px; display:flex; gap:8px;">
+                    <button class="btn btn-sm btn-danger shadow-sm" onclick="deletePlan(${p.id})"><i class="bi bi-trash"></i></button>
+                </div>
+                <div style="font-size:0.75rem; opacity:0.5; font-weight:800; text-transform:uppercase;">${p.providerName}</div>
+                <h2 class="fw-bold my-2">₹${p.amount}</h2>
+                <p class="small m-0 opacity-75">${p.name} | ${p.speed>=1024?(p.speed/1024).toFixed(1)+" Gbps":p.speed+" Mbps"}</p>
+            </div>`).join('');
+    }
+
+    function deletePlan(id) { if(confirm("Permanently delete?")) fetch('DeletePlan.aspx?id='+id).then(()=>{ showSuccess(); refreshPlanList(); }); }
+    function submitProvider() { const fd=new FormData(); fd.append("name", document.getElementById('mProviderName').value); fetch('SaveMasterProvider.aspx',{method:'POST',body:fd}).then(()=>{ showSuccess(); goBackInHub(); }); }
+    function submitPlan() { const fd=new FormData(); fd.append("pid", document.getElementById('mProviderSelect').value); fd.append("name", document.getElementById('mPlanName').value); fd.append("amt", document.getElementById('mAmount').value); fd.append("speed", document.getElementById('mSpeed').value); fetch('SavePlan.aspx',{method:'POST',body:fd}).then(()=>{ showSuccess(); goBackInHub(); }); }
+    function showSuccess() { const t=document.getElementById('successToast'); t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000); }
+    
+    function exportToExcel() { 
+        const ws=XLSX.utils.json_to_sheet(window.allPlans); 
+        const wb=XLSX.utils.book_new(); 
+        XLSX.utils.book_append_sheet(wb,ws,"Inventory"); 
+        XLSX.writeFile(wb,"APB_Inventory.xlsx"); 
+    }
+
+    function exportToPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.text("APB Broadband - Inventory Matrix", 14, 15);
+        const rows = window.allPlans.map(p => [p.providerName, p.name, `Rs.${p.amount}`, `${p.speed} Mbps`]);
+        doc.autoTable({ head: [['Provider', 'Plan', 'Price', 'Bandwidth']], body: rows, startY: 20 });
+        doc.save("APB_Inventory.pdf");
+    }
+
+    function importFromExcel(input) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const workbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+            const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+            fetch('ImportPlans.aspx', { method: 'POST', body: JSON.stringify(rows), headers: { 'Content-Type': 'application/json' } })
+            .then(() => { showSuccess(); refreshPlanList(); });
+        };
+        reader.readAsArrayBuffer(input.files[0]);
+    }
+</script>
 </body>
 </html>

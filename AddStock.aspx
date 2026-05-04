@@ -1,0 +1,1 @@
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="AddStock.aspx.cs" Inherits="AddStock" %>
