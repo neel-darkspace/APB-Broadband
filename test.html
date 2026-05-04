@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Portal</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="login-container" class="auth-wrapper">
+        <div class="login-card">
+            <h2>Welcome Back</h2>
+            <p>Please enter your details</p>
+            <form id="login-form">
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" placeholder="admin@example.com" required>
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-primary">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="dashboard-container" class="dashboard-wrapper" style="display: none;">
+        <nav class="sidebar">
+            <div class="logo">CorePanel</div>
+            <ul>
+                <li class="active">Overview</li>
+                <li>Analytics</li>
+                <li>Settings</li>
+            </ul>
+            <button class="btn-logout" onclick="location.reload()">Logout</button>
+        </nav>
+        
+        <main class="content">
+            <header>
+                <h1>User Dashboard</h1>
+                <div class="user-profile">Admin User</div>
+            </header>
+            
+            <section class="stats-grid">
+                <div class="stat-card"><h3>$12,450</h3><p>Revenue</p></div>
+                <div class="stat-card"><h3>1,205</h3><p>Active Users</p></div>
+                <div class="stat-card"><h3>85%</h3><p>Retention</p></div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Simple logic to toggle views
+        const loginForm = document.getElementById('login-form');
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            document.getElementById('login-container').style.display = 'none';
+            document.getElementById('dashboard-container').style.display = 'flex';
+        });
+    </script>
+</body>
+</html>
